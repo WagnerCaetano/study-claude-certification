@@ -33,7 +33,11 @@ D2 Applications **33.1%** · D5 Models **16.8%** · D1 Agents **14.7%** · D6 Pr
 
 - Stateless: **you** resend history. **System** ≠ user turn.
 - Content = **blocks** (text, tool_use, tool_result, image, document, thinking). Echo assistant blocks; send **tool_result**, not a paraphrase.
-- Stream = realtime UX. Batch ≠ stream.
+- Stream = realtime UX (**TTFT** = perceived snappiness). Batch ≠ stream.
+- Stream events: **`message_delta`** carries final **`stop_reason`** + cumulative **`usage`** (not `content_block_start`).
+- **`metadata`**: opaque user id for **spend attribution** / abuse — **no PII**. Not a custom tenant header.
+- **Token counting endpoint** = fit-check before a full generation. No Messages `dry_run`.
+- HTTP: retry **429 / 529**; fix **400 / 401** (do not blind-retry).
 - Structured output still needs **validation**.
 - Features: **extended thinking**, **images**, **PDFs**, **citations** (need source docs), **Files API + code execution**, **web search**, **text edit**, **fine-grained tool calling**.
 - Third-party vendors: still Messages mechanics + pinning + your keys.
@@ -89,7 +93,7 @@ D2 Applications **33.1%** · D5 Models **16.8%** · D1 Agents **14.7%** · D6 Pr
 - Workflow: spec → **dataset** → run pinned → **grade** → iterate.
 - **Code grade** = machine-checkable. **Model grade** = rubric/fuzzy. Hybrid is normal.
 - Isolate: **integration** (HTTP/auth/dropped blocks/parser) vs **model output** (200 + legal transcript, wrong behavior).
-- Recovery **matches type**: retry timeout · fail-closed injection · prompt/eval for wrong answer — not infinite retry of a prompt bug.
+- Recovery **matches type**: retry **429/529**/timeout · fail-closed injection · fix **400/401** · prompt/eval for wrong answer — not infinite retry of a prompt bug.
 
 ## Security (D7)
 

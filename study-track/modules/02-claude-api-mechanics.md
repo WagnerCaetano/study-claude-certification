@@ -27,9 +27,23 @@ The course drills **message formatting** and **multi-turn context**.
 
 ### Streaming
 
-- **Response streaming** delivers tokens incrementally (low time-to-first-token for UX).
+- **Response streaming** delivers tokens incrementally (**time-to-first-token / TTFT** is the UX responsiveness metric — not total duration, not retry count).
 - Client must handle **partial** content, connection failures, and assembling the final message (including tool_use) before the next turn.
 - Streaming is still the **realtime** Messages path, not the Batches path.
+- **Stream events (exam surface):** `message_start` → `content_block_start` / `content_block_delta` / `content_block_stop` → **`message_delta`** → `message_stop`. **`message_delta`** carries top-level updates such as final **`stop_reason`** and cumulative **`usage`**. Do not look for those on `content_block_start` (that only opens a block).
+
+### Request metadata, token counting, HTTP errors
+
+Platform details that mocks hit and the blueprint barely names:
+
+| Surface | Use when | Trap |
+|---|---|---|
+| **`metadata`** on the request | Multi-tenant **spend attribution** / abuse investigation via an **opaque user id** | Not a custom `x-tenant-id` header the Messages API interprets. **No PII** in `metadata` |
+| **Token counting endpoint** | Check whether a **large prospective request fits the context window** *before* a full generation (and before you pay for one) | There is no Messages **`dry_run`** flag for this |
+| **HTTP 429** (rate limit) / **529** (overloaded) | **Retry with backoff** (or queue / batch if latency-tolerant) | Transient capacity — not a code defect |
+| **HTTP 400** (bad request) / **401** (auth) | **Fix the request or credentials** | Retrying repeats the same failure |
+
+Cross-ref: recovery matching error type is also Domain 4 (`08`).
 
 ### Structured data
 
@@ -112,6 +126,26 @@ A single Messages call can combine: system + messages (text/image/PDF) + tools +
 ### Card 6 — Streaming
 **Q:** Why stream, and what extra client work does it create?
 **A:** Faster perceived latency (incremental tokens). Client must assemble chunks, handle disconnects, and still produce a complete assistant message for the next turn.
+
+### Card 6b — TTFT
+**Q:** For a streaming chat UI, which metric best reflects perceived responsiveness?
+**A:** **Time to first token (TTFT)**. Total duration is throughput planning; retries/hour is reliability, not “how snappy it felt.”
+
+### Card 6c — message_delta
+**Q:** Which stream event carries final `stop_reason` and cumulative usage?
+**A:** **`message_delta`**. `content_block_start` only opens a content block.
+
+### Card 6d — metadata
+**Q:** How do you attribute API spend to an end user in a multi-tenant product?
+**A:** Put an **opaque user identifier** in the request **`metadata`** object. Do not invent a custom header the API does not interpret; do not put PII in `metadata`.
+
+### Card 6e — Token counting
+**Q:** How do you verify a very large payload will fit the context window without paying for a full generation?
+**A:** Call the **token counting endpoint** on the prospective request. Not a Messages `dry_run` flag.
+
+### Card 6f — Retry vs fix
+**Q:** Which HTTP errors should be retried automatically, and which are defects to fix?
+**A:** Retry **429** (rate limit) and **529** (overloaded) with backoff. Fix **400** (bad request) and **401** (credentials) — retrying them repeats the failure.
 
 ### Card 7 — Structured data
 **Q:** What is “structured data” in this course?
@@ -218,3 +252,30 @@ A single Messages call can combine: system + messages (text/image/PDF) + tools +
 
 **Answer:** B  
 **Why:** The course lists fine-grained tool calling separately from multiple tools and from specific built-ins (text edit, web search).
+
+**Q7.** A multi-tenant SaaS must attribute Claude spend to each end user for billing and abuse review. Which request field supports this?
+- A) A custom `x-tenant-id` header interpreted by the Messages API
+- B) The **`metadata`** object with an **opaque** user identifier (no PII)
+- C) Putting the user’s email in the system prompt
+- D) Message Batches only — realtime Messages cannot attribute spend
+
+**Answer:** B  
+**Why:** `metadata` is the supported attribution channel. Custom headers are not the Messages API’s tenant field; PII in prompts/metadata is wrong.
+
+**Q8.** Before sending a huge context, the team wants the input token count without a full generation. Correct approach?
+- A) Set a `dry_run` flag on Messages
+- B) Use the **token counting endpoint**
+- C) Set `max_tokens` to 1 and ignore the answer
+- D) Enable prompt caching and read the cache discount
+
+**Answer:** B  
+**Why:** Token counting exists for prospective size checks. There is no Messages dry-run; tiny `max_tokens` still runs a generation; caching does not pre-validate fit.
+
+**Q9.** While consuming a stream, where do final `stop_reason` and cumulative usage appear?
+- A) `content_block_start`
+- B) **`message_delta`**
+- C) Only on a separate non-streaming poll
+- D) Only inside the first `text` delta
+
+**Answer:** B  
+**Why:** Top-level message fields (`stop_reason`, usage totals) arrive on **`message_delta`** as the message concludes.

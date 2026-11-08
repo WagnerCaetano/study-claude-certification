@@ -100,6 +100,26 @@ Protocol: say the answer out loud, then reveal. End of a module: retry misses im
 **Q:** Why stream, and what extra client work does it create?
 **A:** Faster perceived latency (incremental tokens). Client must assemble chunks, handle disconnects, and still produce a complete assistant message for the next turn.
 
+### Card M02-6b — TTFT
+**Q:** For a streaming chat UI, which metric best reflects perceived responsiveness?
+**A:** **Time to first token (TTFT)**. Total duration is throughput planning; retries/hour is reliability, not “how snappy it felt.”
+
+### Card M02-6c — message_delta
+**Q:** Which stream event carries final `stop_reason` and cumulative usage?
+**A:** **`message_delta`**. `content_block_start` only opens a content block.
+
+### Card M02-6d — metadata
+**Q:** How do you attribute API spend to an end user in a multi-tenant product?
+**A:** Put an **opaque user identifier** in the request **`metadata`** object. Do not invent a custom header the API does not interpret; do not put PII in `metadata`.
+
+### Card M02-6e — Token counting
+**Q:** How do you verify a very large payload will fit the context window without paying for a full generation?
+**A:** Call the **token counting endpoint** on the prospective request. Not a Messages `dry_run` flag.
+
+### Card M02-6f — Retry vs fix
+**Q:** Which HTTP errors should be retried automatically, and which are defects to fix?
+**A:** Retry **429** (rate limit) and **529** (overloaded) with backoff. Fix **400** (bad request) and **401** (credentials) — retrying them repeats the failure.
+
 ### Card M02-7 — Structured data
 **Q:** What is “structured data” in this course?
 **A:** Constraining Claude’s output to a parseable format (e.g. JSON / schema). Must be **validated**; do not trust raw text that merely looks like JSON.
@@ -505,8 +525,8 @@ Protocol: say the answer out loud, then reveal. End of a module: retry misses im
 **A:** Ordered turns: prompts/versions, **content blocks**, tool results, usage, errors. Not just the final user-visible string.
 
 ### Card M08-8 — Recovery match
-**Q:** Match recovery to error type: timeout vs bad JSON vs injection vs wrong answer.
-**A:** Timeout → retry/backoff. Bad JSON → defensive parse/repair or schema tighten. Injection → fail closed/guardrail. Wrong answer → prompt/model/eval, not blind retry.
+**Q:** Match recovery to error type: timeout vs 429/529 vs 400/401 vs bad JSON vs injection vs wrong answer.
+**A:** Timeout / **429 / 529** → retry/backoff. **400 / 401** → fix request or credentials (do not blind-retry). Bad JSON → defensive parse/repair or schema tighten. Injection → fail closed/guardrail. Wrong answer → prompt/model/eval, not blind retry.
 
 ### Card M08-9 — Discernment
 **Q:** How does 4D Discernment show up in this domain?

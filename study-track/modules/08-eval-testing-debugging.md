@@ -59,7 +59,8 @@ If the parser throws, do not “increase Opus.” If Opus returns valid JSON wit
 **Recovery (pick to match the error type):**
 
 - Transient API/network → retry/backoff.
-- Rate/overload → retry with backoff or queue; batch if the job is latency-tolerant.
+- Rate/overload → retry with backoff or queue; batch if the job is latency-tolerant. Exam codes: **429** (rate limit) and **529** (overloaded) are the automatic-retry pair.
+- **400** (bad request) / **401** (unauthorized) → **fix the request or credentials**; retrying repeats the same defect. Cross-ref: module `02` HTTP table.
 - Invalid model JSON → defensive parse, **retry with repair prompt**, or fallback to a stricter tool schema.
 - Wrong tool used → better descriptions / fewer tools / approval hook — not infinite retry.
 - Safety/injection attempt → **fail closed**, do not retry the same untrusted payload into a privileged tool.
@@ -100,8 +101,8 @@ If the parser throws, do not “increase Opus.” If Opus returns valid JSON wit
 **A:** Ordered turns: prompts/versions, **content blocks**, tool results, usage, errors. Not just the final user-visible string.
 
 ### Card 8 — Recovery match
-**Q:** Match recovery to error type: timeout vs bad JSON vs injection vs wrong answer.
-**A:** Timeout → retry/backoff. Bad JSON → defensive parse/repair or schema tighten. Injection → fail closed/guardrail. Wrong answer → prompt/model/eval, not blind retry.
+**Q:** Match recovery to error type: timeout vs 429/529 vs 400/401 vs bad JSON vs injection vs wrong answer.
+**A:** Timeout / **429 / 529** → retry/backoff. **400 / 401** → fix request or credentials (do not blind-retry). Bad JSON → defensive parse/repair or schema tighten. Injection → fail closed/guardrail. Wrong answer → prompt/model/eval, not blind retry.
 
 ### Card 9 — Discernment
 **Q:** How does 4D Discernment show up in this domain?
