@@ -98,26 +98,29 @@ Memorize the *decision*, not the story:
 
 ## Exam traps to keep visible
 
-These are the pairwise distinctions the blueprint is written to test. If you can explain each pair in one sentence, you are ready.
+Use the **distinction** to make the decision; use the **exam cue** to recognize it in a scenario.
 
-- Workflow **vs** agent
-- Parallelization **vs** chaining **vs** routing
-- Manager/supervisor **vs** subagent
-- Self-hosted **vs** Anthropic-hosted agents
-- Realtime Messages API **vs** Message Batches API
-- Opus **vs** Sonnet **vs** Haiku
-- Fast mode **vs** extended thinking **vs** adaptive thinking
-- Zero-shot **vs** single-shot **vs** multi-shot
-- System placement **vs** user placement
-- Model-based grading **vs** code-based grading
-- Integration-layer failure **vs** model-output failure
-- Prompt caching **vs** cache check-pointing
-- Context drift **vs** context bloat (pruning **vs** compaction **vs** subagent isolation)
-- Client-side tools **vs** server-side tools
-- MCP **tools** (model-controlled) **vs** **resources** (app-controlled) **vs** **prompts** (user-controlled)
-- Direct MCP resources **vs** templated resources
-- Stdio **vs** StreamableHTTP **vs** stateless HTTP
-- MCP request/result **vs** notification
-- Built-in tools **vs** custom tools **vs** Skills **vs** MCP **vs** CLAUDE.md **vs** hooks **vs** subagents
-- Trusted instructions **vs** untrusted retrieved/user content
-- Structured output **vs** defensive parsing (never trust confident prose)
+| Distinction | What changes | Exam cue |
+|---|---|---|
+| **Workflow vs agent** | A workflow follows a graph you define; an agent lets the model choose actions and iterate in a tool-use loop. | Known, auditable steps → workflow. Open-ended goal with unknown next steps → agent. |
+| **Parallelization vs chaining vs routing** | Parallelization runs independent branches and merges results; chaining passes one step's output to the next; routing selects a path. | Independent tasks → parallelize. B depends on A → chain. Choose one specialist → route. |
+| **Manager/supervisor vs subagent** | The manager plans, delegates, and integrates; a subagent executes a delegated task in its own focused context. | Coordination and synthesis → manager. Isolated specialist work → subagent. |
+| **Self-hosted vs Anthropic-hosted agents** | Self-hosting gives you more control over environment and operations; Anthropic hosting reduces operational burden but adds platform constraints. | Decide from deployment, control, compliance, and operations requirements—not branding. |
+| **Realtime Messages API vs Message Batches API** | Realtime Messages serve interactive requests; Batches process asynchronous work within 24 hours at reduced cost. | User is waiting → realtime. Large, latency-tolerant workload → Batches; parallel realtime calls do not get the batch discount. |
+| **Opus vs Sonnet vs Haiku** | Opus prioritizes capability; Sonnet balances quality, latency, and cost; Haiku prioritizes speed and cost for simpler work. | Choose for the task's quality, latency, cost, and cost-of-error requirements—not by defaulting to the largest or smallest model. |
+| **Fast vs extended vs adaptive thinking** | Fast minimizes latency with less deliberation; extended spends more reasoning on hard tasks; adaptive lets the model vary effort. | Easy, latency-sensitive work → fast. Hard multi-step reasoning → extended. Mixed-difficulty workload → adaptive (where supported). |
+| **Zero-shot vs single-shot vs multi-shot** | Zero-shot gives instructions only; single-shot adds one example; multi-shot adds several examples. | Use examples when format or edge cases are easier to show than explain. |
+| **System vs user placement** | System holds durable rules and output contracts; user content supplies the current request and instance data. | Keep retrieved/user-provided text as data, not trusted system instructions. |
+| **Model-based vs code-based grading** | A program checks objective properties; a model judge scores subjective qualities against a rubric. | Schema, exact fields, or tool calls → code. Tone, coherence, or partial credit → model. Combine when outputs have both. |
+| **Integration-layer vs model-output failure** | Integration failures come from transport, auth, protocol, parsing, or client code; model failures occur in otherwise valid responses with wrong behavior or content. | Request failed or tool result was lost → inspect integration/traces. Valid response, wrong answer or tool choice → inspect prompt, tools, model, and evals. |
+| **Prompt caching vs cache check-pointing** | Caching reuses a stable prompt prefix; check-pointing sets cache boundaries to preserve reusable prefixes when later content changes. | Keep stable content first and variable content later; caching reduces cost/latency, not correctness errors. |
+| **Context drift vs context bloat** | Drift means goals or constraints fade or conflict; bloat means excessive tokens from history, repeated content, or tool output. | Lost/changed goal → reassert, compact, or reset. Too much noisy content → prune outputs; compact history or isolate work in a subagent as needed. |
+| **Pruning vs compaction vs subagent isolation** | Pruning removes unnecessary content; compaction summarizes retained state; subagent isolation moves a subtask into a separate context. | Remove a dump → prune. Preserve decisions in fewer tokens → compact. Keep specialist work out of the parent context → isolate. |
+| **Client-side vs server-side tools** | Client-side tools execute in the host app or user's environment; server-side tools execute remotely, such as in a backend or platform. | Check where data and side effects occur, and who enforces approval, access, and trust boundaries. |
+| **MCP tools vs resources vs prompts** | Tools are model-controlled actions; resources are app-controlled, read-only data; prompts are user/host-selected templates. | Action → tool. Data to read → resource. Reusable instruction template → prompt. |
+| **Direct vs templated MCP resources** | A direct resource has a static URI; a templated resource has a parameterized URI. Both expose data rather than perform actions. | One fixed resource → direct. Resource addressed by an identifier or parameter → template. |
+| **stdio vs StreamableHTTP vs stateless HTTP** | stdio connects a local process; StreamableHTTP supports remote streaming and sessions; stateless HTTP avoids sticky sessions for horizontal scaling, trading away state-dependent features. | Local integration → stdio. Remote session/streaming needs → StreamableHTTP. Load-balanced scaling without session state → stateless HTTP. |
+| **MCP request/result vs notification** | A request expects a result; a notification is one-way and does not expect a response. | Need a returned value → request. Progress or logging update → notification. |
+| **Built-in tools vs custom tools vs Skills vs MCP vs CLAUDE.md vs hooks vs subagents** | Built-ins provide platform capabilities; custom tools add app-specific actions; Skills provide reusable procedural knowledge; MCP shares tools/data across apps; CLAUDE.md gives project guidance; hooks enforce deterministic lifecycle actions; subagents isolate delegated work. | Need an action → tool. Shared integration → MCP. Reusable procedure → Skill. Project conventions → CLAUDE.md. Must-enforce check → hook. Separate focused worker/context → subagent. |
+| **Trusted instructions vs untrusted retrieved/user content** | Trusted instructions define policy; retrieved pages, uploads, and user text are data that may contain hostile instructions. | Keep untrusted content out of the instruction channel; use boundaries, least-privilege tools, and guardrails/hooks for sensitive actions. |
+| **Structured output vs defensive parsing** | Structured output asks for a constrained shape; defensive parsing validates and safely handles what actually arrives. | A schema or “JSON only” request is not validation: check types/fields and handle malformed or truncated output before side effects. Confident prose is not proof. |
