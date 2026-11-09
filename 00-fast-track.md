@@ -49,8 +49,9 @@ API and models first; tools and agents next; Claude Code / eval last; security a
 | **5 — Safety** | 40 min | `09` | Injection, guardrails, hooks, keys |
 | **6 — Drill** | 60–90 min | `study-track/flashcards-all.md` | Cover every card; restudy misses by module |
 | **7 — Cram** | 25 min | `study-track/cram-sheet.md` + missed ABCD | Night-before / hour-before |
+| **8 — Hard-mock gaps** | 30–40 min | `study-track/mock-miss-drills.md` | After a dense practice exam; re-run cold the night before |
 
-**Total: ~8–9 hours.** If you have 4 hours, do Pass 0, then 01/02/04/05/09 briefs + cram sheet + flashcards tagged D1, D2-API, D5, D8, D7 (those are ~83% of the exam if you include D2 application-design at skim depth).
+**Total: ~8–9 hours** (+ ~40 min for Pass 8 after a hard mock). If you have 4 hours, do Pass 0, then 01/02/04/05/09 briefs + cram sheet + flashcards tagged D1, D2-API, D5, D8, D7 (those are ~83% of the exam if you include D2 application-design at skim depth).
 
 ### Weight-based time (inside each pass)
 
@@ -83,6 +84,7 @@ Also:
 
 - [flashcards-all.md](study-track/flashcards-all.md) — all cards, module-tagged
 - [cram-sheet.md](study-track/cram-sheet.md) — last-pass sheet
+- [mock-miss-drills.md](study-track/mock-miss-drills.md) — ABCD pack from hard-mock miss patterns (canary, Managed Agents, thinking events, strict schemas, MCP large output, etc.)
 
 ---
 
@@ -106,6 +108,8 @@ Use the **distinction** to make the decision; use the **exam cue** to recognize 
 | **Parallelization vs chaining vs routing** | Parallelization runs independent branches and merges results; chaining passes one step's output to the next; routing selects a path. | Independent tasks → parallelize. B depends on A → chain. Choose one specialist → route. |
 | **Manager/supervisor vs subagent** | The manager plans, delegates, and integrates; a subagent executes a delegated task in its own focused context. | Coordination and synthesis → manager. Isolated specialist work → subagent. |
 | **Self-hosted vs Anthropic-hosted agents** | Self-hosting gives you more control over environment and operations; Anthropic hosting reduces operational burden but adds platform constraints. | Decide from deployment, control, compliance, and operations requirements—not branding. |
+| **Managed Agents loop vs your sandbox** | Anthropic runs the agent loop and keeps session event history; you still choose cloud or self-hosted sandbox and attach memory. | “Users return hours later / memory between sessions” → platform owns loop+history; residency alone does not force DIY Messages loop. |
+| **Canary vs shadow vs offline expand** | Canary sends a small live % with reviewed accuracy and rollback thresholds; shadow logs labels without serving; offline expand only improves the test set. | Few customers may see risk → canary+thresholds. Do not cut over on model-agreement % or offline score alone. |
 | **Realtime Messages API vs Message Batches API** | Realtime Messages serve interactive requests; Batches process asynchronous work within 24 hours at reduced cost. | User is waiting → realtime. Large, latency-tolerant workload → Batches; parallel realtime calls do not get the batch discount. |
 | **Opus vs Sonnet vs Haiku** | Opus prioritizes capability; Sonnet balances quality, latency, and cost; Haiku prioritizes speed and cost for simpler work. | Choose for the task's quality, latency, cost, and cost-of-error requirements—not by defaulting to the largest or smallest model. |
 | **Fast vs extended vs adaptive thinking** | Fast minimizes latency with less deliberation; extended spends more reasoning on hard tasks; adaptive lets the model vary effort. | Easy, latency-sensitive work → fast. Hard multi-step reasoning → extended. Mixed-difficulty workload → adaptive (where supported). |

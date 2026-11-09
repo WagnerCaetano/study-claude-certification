@@ -103,6 +103,24 @@ D2 Applications **33.1%** · D5 Models **16.8%** · D1 Agents **14.7%** · D6 Pr
 
 ---
 
+## Hard-mock traps (dense distractors)
+
+- **Managed Agents:** platform runs **loop + event history**; you choose **sandbox** (cloud/self-hosted) + **memory**. Memory ≠ auto-load whole store into the prompt.
+- **Context awareness:** model already gets **budget / remaining** updates (esp. after tool calls) — don’t invent token-left notes as the fix.
+- **Release:** small **canary %** + reviewed live accuracy + **rollback thresholds** + stage widen. Shadow *agreement* ≠ correctness; offline-only expand ≠ live risk control.
+- **Injection + side effects:** untrusted page in **`tool_result`/data** + **app allowlist/human gate**. System prompt alone is never the main control.
+- **Thinking UI:** stream **`thinking_delta`**; persist block + **`signature_delta`**. Don’t scrape `text_delta`.
+- **PDFs:** **documents before** instructions; **logical/viewer** pages, not footer roman numerals.
+- **Strict tools:** optional params share a **cross-schema complexity budget** — require fields / drop strict on non-critical tools.
+- **Layout labels:** send the **image block**, not OCR-only.
+- **Stale CRM/search:** **clear/edit** old tool results and/or **subagent** returns verified status. Caching ≠ freshness.
+- **Raw HTTPS:** still send **`anthropic-version`** (+ key + JSON). SDK helpers don’t exist on a bare device.
+- **Overnight cost:** stable prefix + **cache breakpoint** + **Batches**. Streaming does **not** cut billed output tokens.
+- **Size guard:** **token-counting endpoint** on the **full** request for the target model (+ reserve output).
+- **Large MCP output:** spilled to a **file the agent can read**; use **`anthropic/maxResultSizeChars`** for inline.
+
+Drill: `mock-miss-drills.md`.
+
 ## 20-second chooser
 
 | Need | Pick |
