@@ -2,9 +2,102 @@
 
 Use after a dense practice exam. **Cover answers.** Write the *distinction* you missed, not just the letter.
 
-Source: patterns from a hard Udemy-style mock (rewritten — not the vendor’s wording). Goal: close the gaps that soft quizzes miss.
+Source: patterns from hard Udemy-style mocks (rewritten — not the vendor’s wording). Combines **both** mock miss sets.
 
 **Protocol:** answer → check → one line “I missed ___ vs ___” → retry wrong items at the end.
+
+---
+
+## 2-hour review plan (miss-weighted)
+
+Do this cold the day before / morning of a hard mock. Times are ceilings — finish early and stop.
+
+| Block | Min | What | Goal |
+|---|---:|---|---|
+| **0 — Pattern** | 5 | Read “Pattern across misses” below once | Stop inventing extra machinery |
+| **1 — Messages API** | 25 | Cram “Messages API” block + `02` cards **6b–6f** (TTFT, `message_delta`, `metadata`, token count, 429/529 vs 400/401) | Named API surfaces stick |
+| **2 — Control plane** | 20 | Cram: must-never → **hook**; agentic **stop** = `end_turn` (cap = rail); loop while `tool_use` → `tool_result`; Managed Agents ownership | Hook / stop / loop / sandbox |
+| **3 — Tools & MCP** | 15 | MCP three primitives (**tools / resources / prompts**); wrong tool → **expand descriptions** first; large MCP spill file | No “model checkpoints” |
+| **4 — Prompt / output / schema** | 20 | Few-shots beat post-process; temp **near 0** for repeatable extract; structured outputs: strip `minLength`/`maxLength`/`minimum`, keep `email`, validate in app | Shape vs business rules |
+| **5 — Eval / release / safety** | 15 | Canary ≠ shadow agreement; false-positive → log **what triggered** (`detected_pattern`), not confidence; injection = `tool_result` + **app gate** | Live risk + evidence |
+| **6 — Drill** | 40 | This file ABCD cold (prefer **Q14–Q22** + any prior reds first, then hard-mock Q1–Q13) | ≤3 wrong; write distinctions |
+| **7 — Close** | 10 | Re-read only the lines you missed; stop | Don’t open new rabbit holes |
+
+**Skip unless still red:** deep Claude Code / Computer Use (low weight).  
+**If short on time (60 min):** blocks 0 → 1 → 2 → 4 → red ABCD only.
+
+---
+
+## Overview — everything missed across both mocks
+
+Grouped by **what to study**, not question number.
+
+### Control plane & agents
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| Tool ordering / safety | Prompt or router instead of code | Must-never-fail → **hook / programmatic prerequisite**, not a sentence |
+| Agentic stop | Cap as primary exit | Primary = **`stop_reason: end_turn`**; cap = safety rail only |
+| Agentic continue | (got right later by logic) | Loop while **`tool_use`** → run tools → send **`tool_result`** |
+| Managed Agents ownership | DIY loop / residency abandon | Anthropic runs **loop + event history**; you choose **sandbox** + attach **memory** |
+| Context awareness | Custom “tokens left” notes | Model already gets **budget / remaining** updates (esp. after tool calls) |
+| Stale tool results | Caching / “trust newest” instruction | **Clear/edit** old results + save facts; and/or **subagent** returns verified status |
+
+### Tools & MCP
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| Wrong tool selected | Routing first | Expand **tool descriptions** first (when / when not / formats) |
+| MCP primitives | “Model checkpoints” | Third primitive = **prompts** (user/host templates), with **tools + resources** |
+| Strict schema complexity | “One bad schema” / max 5 tools | Optional params share a **cross-schema budget**; require fields / drop strict on non-critical |
+| Large MCP output | Crash / instant expiry | Spill to a **file the agent can read**; `anthropic/maxResultSizeChars` for inline |
+
+### Prompt & output
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| Format consistency | JSON post-process | **2–4 few-shots** of the exact shape first |
+| Repeatable extraction | temperature ~1 | Temperature **near 0** (less variance, still not bit-identical) |
+| Thinking stream UI | Scrape `text_delta` | Render **`thinking_delta`**; persist block + **`signature_delta`** |
+| PDF page refs | Footer / system “decoder” | **Documents before** instructions; **logical/viewer** pages |
+| Layout-sensitive vision | OCR-only | Send **image content block** at legible resolution |
+
+### Eval / schema design
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| False-positive analysis | confidence field | Log what triggered it (**`detected_pattern`**), not a proxy score |
+| Safe release | Shadow agreement / offline then 100% | Small **canary %** + reviewed accuracy + **rollback thresholds** + stage widen |
+| Structured outputs 400 | Regex / relax `additionalProperties` / drop structured | Strip **`minLength` / `maxLength` / `minimum`**; keep **`email` format**; check length/age **in app** after parse |
+
+### Messages API surface
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| Spend attribution | Custom header | Request **`metadata`** + **opaque** user id, **no PII** |
+| Fit check before generate | `dry_run` / char÷4 | **Token counting endpoint** on the **full** request |
+| Stream finale | `content_block_start` | **`message_delta`** → `stop_reason` + `usage` |
+| Streaming UX metric | Retries/hour | **Time to first token (TTFT)** |
+| Auto-retry | Blind retry all | Retry **429 + 529**; fix **400 + 401** |
+| SDK vs raw HTTPS | Omit `anthropic-version` | Raw client still sends **key + version + JSON** |
+| Overnight cost | Streaming “saves” output $ | Stable prefix + **cache breakpoint** + **Batches** |
+| Fast mode ↔ cache | (review note) | Fast vs standard use **separate** cache prefixes — toggling speed misses system/messages cache |
+
+### Security (paired with gates)
+
+| Topic | Miss | Rule to lock |
+|---|---|---|
+| Injection + money tools | System-prompt-only / undo later | Untrusted page as **`tool_result`/data** + **app allowlist/human gate** |
+
+---
+
+## Pattern across misses
+
+You tend to pick **extra machinery** (router, post-process, caps, confidence, custom headers, regex, DIY notes) when the exam wants the **named control** (hook, description, few-shot, `stop_reason`, `metadata`, token count, `message_delta`, app validation after a legal schema).
+
+**Default exam move:** prefer the **platform-named lever** over inventing a new subsystem.
+
+**Highest-yield re-drill:** cram Messages API block + `02` cards 6b–6f + MCP three primitives + “must never happen → hook” + structured-output unsupported keywords.
 
 ---
 
@@ -12,23 +105,33 @@ Source: patterns from a hard Udemy-style mock (rewritten — not the vendor’s 
 
 | # | Distinction | Correct move | Common trap |
 |---|---|---|---|
-| 1 | Managed Agents ownership | Anthropic runs the **agent loop** + keeps **session event history**; team picks **cloud or self-hosted sandbox** and attaches **memory** | “Residency ⇒ abandon Managed Agents / DIY loop” or “your web server holds the connection open” |
-| 2 | Context awareness | Newer Sonnet already gets **total budget + remaining capacity** updates (esp. after tool calls) | Custom “tokens left” notes / special tags as the only fix |
-| 3 | Safe release | **Small live canary %** + reviewed accuracy vs **rollback thresholds** + stage widen | Shadow *agreement* %, offline expand then 100% cutover, or full replace + hope |
-| 4 | Injection + money tools | Untrusted page as **`tool_result` / data** + **app gate** (allowlist + human approve) | System-prompt-only, paste page into system, “undo payment” as primary control |
-| 5 | Thinking stream UI | Render **`thinking_delta`**; persist thinking block + **`signature_delta`** for multi-turn | Scrape `text_delta`, second non-stream call, or “omitted = full text” |
-| 6 | PDF page refs | Put **documents before** instructions; use **viewer/logical** page numbers | Footer/roman printed numbers; “explain footer format in system” |
-| 7 | Strict schema complexity | Optional params share a **cross-schema budget** (~24); require defaults / drop strict on non-critical tools | “One tool is broken”; “max 5 tools”; “only JSON output schemas count” |
-| 8 | Layout-sensitive vision | Send **image content block** with ticket text (legible resolution) | OCR-only, Files API “match among today’s uploads”, agent prose description |
-| 9 | Stale tool results | **Context editing / clear old results** after saving facts; and/or **subagent** returns only verified status | Prompt caching for freshness; “trust newest via system instruction”; summarize *keeping every result verbatim* |
-| 10 | SDK vs raw HTTPS | SDK sends auth/version/content-type + typed models; raw client must send **key + `anthropic-version` + JSON** | Omit version header; reuse SDK helper methods on device |
-| 11 | Overnight cost | Identical stable **policy prefix + cache breakpoint** + **Message Batches** (~½ price) | Streaming to cut output bill; smallest model without quality check; raise `max_tokens` “to save reruns” as primary lever |
-| 12 | Token budget guard | **Token-counting endpoint** on the **full** request (system + tools + images) + reserve output | `len//4` on document only; open-source tokenizer on text alone; “API will trim for you” |
-| 13 | Large MCP tool output | Oversized results go to a **file the agent can read** (not lost); raise **`anthropic/maxResultSizeChars`** to keep inline | “Server crashed”; “temp path expires in seconds”; only raise `MAX_MCP_OUTPUT_TOKENS` |
+| 1 | Managed Agents ownership | Anthropic runs the **agent loop** + keeps **session event history**; team picks **cloud or self-hosted sandbox** and attaches **memory** | “Residency ⇒ abandon Managed Agents / DIY loop” |
+| 2 | Context awareness | Model already gets **budget + remaining** updates after tool calls | Custom “tokens left” notes |
+| 3 | Safe release | **Small live canary %** + reviewed accuracy + **rollback thresholds** | Shadow *agreement* %; offline then 100% |
+| 4 | Injection + money tools | **`tool_result` / data** + **app gate** | System-prompt-only; undo payment as primary |
+| 5 | Thinking stream UI | **`thinking_delta`** + **`signature_delta`** in saved message | Scrape `text_delta` |
+| 6 | PDF page refs | Docs **before** text; **logical/viewer** pages | Footer roman; system footer decoder |
+| 7 | Strict schema complexity | Shared optional-param **budget**; require / drop strict | “One tool broken”; “max 5 tools” |
+| 8 | Layout-sensitive vision | **Image** content block, legible | OCR-only |
+| 9 | Stale tool results | **Context editing** + **subagent** | Caching for freshness |
+| 10 | SDK vs raw HTTPS | Key + **`anthropic-version`** + JSON | Omit version; reuse SDK helpers on device |
+| 11 | Overnight cost | Cache breakpoint + **Batches** | Streaming cuts output bill |
+| 12 | Token budget guard | **Token-counting endpoint** on full request | `len//4`; API will trim |
+| 13 | Large MCP tool output | File spill; **`maxResultSizeChars`** | Crash; instant expiry |
+| 14 | Must-never-fail control | **Hook / code prerequisite** | Prompt sentence or router “please” |
+| 15 | Agentic stop | Primary = **`end_turn`**; cap = rail | Cap as primary exit |
+| 16 | Wrong tool selected | Expand **tool descriptions** first | Add a router first |
+| 17 | MCP primitives | **tools + resources + prompts** | “Model checkpoints” as third |
+| 18 | Format consistency | **2–4 few-shots** of exact shape | JSON post-process first |
+| 19 | Repeatable extraction | Temperature **near 0** | temp ~1 |
+| 20 | False-positive analysis | Log **`detected_pattern` / trigger** | Add confidence field |
+| 21 | Structured outputs 400 | Strip length/min; keep **email**; validate in **app** | Regex; `additionalProperties: true`; drop structured |
 
 ---
 
 ## ABCD questions
+
+### Hard-mock set (second exam)
 
 **Q1.** A research agent uses Claude Managed Agents. Users leave and return hours later; a memory store holds reviewer prefs across sessions. A new engineer asks what the team still owns.
 
@@ -191,16 +294,154 @@ Source: patterns from a hard Udemy-style mock (rewritten — not the vendor’s 
 
 ---
 
+### Earlier-mock + schema set
+
+**Q14.** An agent can delete production records. Product says this must never happen from a model suggestion alone. A teammate proposes a stronger system prompt; another proposes a routing model that “only chooses safe tools.”
+
+- A) Keep the delete tool and add a multi-shot example of refusing deletes
+- B) Enforce a **hook / programmatic prerequisite** (approval or policy check) before the delete tool can run
+- C) Lower temperature so deletes become rare
+- D) Add a second router prompt that ranks tool safety
+
+**Answer:** B  
+**Distinction:** Must-never-fail → **code/hook**, not a sentence or another prompt.
+
+---
+
+**Q15.** What should primarily end a healthy agentic tool loop?
+
+- A) Hitting a hard turn/token **cap** (the designed success exit)
+- B) The model returning **`stop_reason: end_turn`** with no further `tool_use` (cap is only a safety rail)
+- C) A fixed wall-clock timer on the web server connection
+- D) The first `message_delta` event
+
+**Answer:** B  
+**Distinction:** Primary exit = natural **`end_turn`**; caps prevent runaway — they are not the happy path.
+
+---
+
+**Q16.** An agent keeps picking the wrong tool among several similar ones. Routing to specialist prompts is expensive. First fix?
+
+- A) Add a Haiku router in front of every request
+- B) Expand each **tool description** with when to use, when not to use, and expected argument formats
+- C) Merge all tools into one mega-tool with a `mode` enum
+- D) Raise temperature so the model explores more tools
+
+**Answer:** B  
+**Distinction:** Tool choice is steered by **descriptions** first; routers are extra machinery.
+
+---
+
+**Q17.** MCP exposes three host primitives. Which set is correct?
+
+- A) Tools, resources, and model checkpoints
+- B) Tools, resources, and **prompts** (user/host-selected templates)
+- C) Tools, embeddings, and Skills
+- D) Resources, CLAUDE.md, and hooks
+
+**Answer:** B  
+**Distinction:** MCP = **tools + resources + prompts**. Checkpoints/Skills/hooks are other surfaces.
+
+---
+
+**Q18.** Outputs wobble between almost-right JSON shapes. A developer wants to post-process with a JSON repair library as the main fix.
+
+- A) Keep temp high and repair every response
+- B) Add **2–4 few-shot examples** of the exact desired shape first; keep defensive parsing as backup
+- C) Switch to Message Batches so shape stabilizes overnight
+- D) Put the schema only in a comment inside the user message
+
+**Answer:** B  
+**Distinction:** **Examples teach format** cheaper than prose or post-process-as-primary.
+
+---
+
+**Q19.** A pipeline must extract the same fields from invoices with low variance across reruns. Temperature should be:
+
+- A) Near **1** for creativity
+- B) Near **0** to reduce sampling variance (still not bit-identical)
+- C) Irrelevant if structured outputs are on
+- D) Raised whenever caching is enabled
+
+**Answer:** B  
+**Distinction:** Repeatable extraction → **low temperature**; structured output ≠ determinism guarantee.
+
+---
+
+**Q20.** A claims filter logs many false positives. Engineering wants to add a `confidence` float to every label to debug them.
+
+- A) Add `confidence` and threshold at 0.9
+- B) Log the **trigger evidence** (e.g. `detected_pattern` / matched rule text), not a proxy score
+- C) Switch to Opus and drop logging
+- D) Shadow-mode agreement with the previous filter as the only metric
+
+**Answer:** B  
+**Distinction:** Debug false positives with **what fired**, not a made-up confidence field.
+
+---
+
+**Q21.** Multi-tenant SaaS must attribute Claude spend per end user. Correct approach?
+
+- A) Custom `x-tenant-id` header the Messages API interprets
+- B) Request **`metadata`** with an **opaque** user id (**no PII**)
+- C) Put the user’s email in the system prompt
+- D) Only Message Batches can attribute spend
+
+**Answer:** B  
+**Distinction:** **`metadata`**, not inventing headers or putting PII in prompts.
+
+---
+
+**Q22.** While streaming, where do final `stop_reason` and cumulative `usage` appear? What UX metric measures perceived snappiness?
+
+- A) `content_block_start`; retries/hour
+- B) **`message_delta`**; **TTFT** (time to first token)
+- C) Only a follow-up non-stream poll; total wall time
+- D) First `text_delta`; batch window length
+
+**Answer:** B  
+**Distinction:** Finale on **`message_delta`**; snappiness = **TTFT**.
+
+---
+
+**Q23.** An onboarding service sends structured outputs with this schema and every signup fails with **400 before generation**. Product still needs full names 2–60 chars and adult applicants.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "full_name": {"type": "string", "minLength": 2, "maxLength": 60},
+    "age": {"type": "integer", "minimum": 18},
+    "email": {"type": "string", "format": "email"}
+  },
+  "required": ["full_name", "age", "email"],
+  "additionalProperties": false
+}
+```
+
+What should the developer do?
+
+- A) Replace structured outputs with a prompt that asks for JSON, because prompts never 400
+- B) Set `additionalProperties` to true so length/min become advisory hints
+- C) Rewrite length and age rules as regex with large `{n,m}` quantifiers and lookaheads for constrained decoding
+- D) Remove `minLength`, `maxLength`, and `minimum` from the schema, keep the `email` format, and check name length and age in application code after parsing
+
+**Answer:** D  
+**Distinction:** Structured outputs reject unsupported value constraints with **400**. Keep supported shape/`format`; enforce business mins/maxes **in app** (official SDKs often strip + validate client-side).
+
+---
+
 ## Quick self-score
 
 | Wrong | Drill again |
 |---|---|
-| Q1 | Agents module — Managed / Anthropic-hosted vs self-hosted sandbox |
-| Q2–Q5, Q8, Q11–Q12 | API mechanics + vision/thinking/caching/batch/token count |
-| Q3 | Eval/release — canary vs shadow vs offline |
-| Q4 | Security — untrusted data channel + app gate |
-| Q6, Q9 | Prompt/context — doc order, logical pages, prune + subagent |
-| Q7, Q13 | Tools/MCP — strict complexity, large tool results |
-| Q10 | Apps/integration — SDK vs raw HTTPS headers |
+| Q1, Q14–Q15 | Agents — Managed Agents, hook vs prompt, `end_turn` vs cap |
+| Q2, Q5, Q11–Q12, Q21–Q22 | API mechanics — awareness, thinking stream, cache/batch, token count, metadata, `message_delta`/TTFT |
+| Q3, Q20 | Eval/release — canary; false-positive evidence |
+| Q4 | Security — untrusted data + app gate |
+| Q6, Q9, Q18–Q19 | Prompt/context — doc order, prune/subagent, few-shot, temperature |
+| Q7, Q13, Q16–Q17 | Tools/MCP — strict complexity, large results, descriptions, three primitives |
+| Q10 | Apps — SDK vs raw HTTPS |
+| Q23 | Structured outputs — unsupported schema keywords → app validation |
 
-When you miss ≤2 cold, move on. Re-run this pack the night before the real exam.
+When you miss ≤3 cold on the full pack (or ≤1 on Q14–Q23), move on. Re-run reds the night before the real exam.

@@ -39,6 +39,8 @@ D2 Applications **33.1%** · D5 Models **16.8%** · D1 Agents **14.7%** · D6 Pr
 - **Token counting endpoint** = fit-check before a full generation. No Messages `dry_run`.
 - HTTP: retry **429 / 529**; fix **400 / 401** (do not blind-retry).
 - Structured output still needs **validation**.
+- Structured outputs **400** on unsupported value constraints (`minLength` / `maxLength` / `minimum` / `maximum` / most array bounds). Keep shape + supported **`format`** (e.g. `email`); enforce business mins/maxes **in app** (or SDK strip + client validate). Do not “fix” with regex or `additionalProperties: true`.
+- **Fast mode** vs standard = **separate** prompt-cache prefixes; toggling speed misses system/messages cache.
 - Features: **extended thinking**, **images**, **PDFs**, **citations** (need source docs), **Files API + code execution**, **web search**, **text edit**, **fine-grained tool calling**.
 - Third-party vendors: still Messages mechanics + pinning + your keys.
 
@@ -105,21 +107,29 @@ D2 Applications **33.1%** · D5 Models **16.8%** · D1 Agents **14.7%** · D6 Pr
 
 ## Hard-mock traps (dense distractors)
 
-- **Managed Agents:** platform runs **loop + event history**; you choose **sandbox** (cloud/self-hosted) + **memory**. Memory ≠ auto-load whole store into the prompt.
-- **Context awareness:** model already gets **budget / remaining** updates (esp. after tool calls) — don’t invent token-left notes as the fix.
-- **Release:** small **canary %** + reviewed live accuracy + **rollback thresholds** + stage widen. Shadow *agreement* ≠ correctness; offline-only expand ≠ live risk control.
-- **Injection + side effects:** untrusted page in **`tool_result`/data** + **app allowlist/human gate**. System prompt alone is never the main control.
-- **Thinking UI:** stream **`thinking_delta`**; persist block + **`signature_delta`**. Don’t scrape `text_delta`.
-- **PDFs:** **documents before** instructions; **logical/viewer** pages, not footer roman numerals.
-- **Strict tools:** optional params share a **cross-schema complexity budget** — require fields / drop strict on non-critical tools.
+- **Must-never-fail:** **hook / code gate**, not a prompt or router sentence.
+- **Agent stop:** primary = **`end_turn`**; turn/token **cap = rail only**.
+- **Wrong tool:** expand **descriptions** first (when / when not / formats).
+- **MCP primitives:** tools + resources + **prompts** — not “model checkpoints.”
+- **Format wobble:** **2–4 few-shots** of the exact shape before post-process-as-primary.
+- **Repeatable extract:** temperature **near 0**.
+- **False positives:** log **what triggered** (`detected_pattern`), not a confidence float.
+- **Managed Agents:** platform runs **loop + event history**; you choose **sandbox** + **memory**.
+- **Context awareness:** built-in **budget / remaining** updates — no DIY token-left notes.
+- **Release:** small **canary %** + reviewed accuracy + **rollback thresholds**. Shadow *agreement* ≠ correct.
+- **Injection + side effects:** **`tool_result`/data** + **app allowlist/human gate**.
+- **Thinking UI:** **`thinking_delta`** + **`signature_delta`**. Don’t scrape `text_delta`.
+- **PDFs:** **documents before** instructions; **logical/viewer** pages.
+- **Strict tools:** shared optional-param **complexity budget**.
 - **Layout labels:** send the **image block**, not OCR-only.
-- **Stale CRM/search:** **clear/edit** old tool results and/or **subagent** returns verified status. Caching ≠ freshness.
-- **Raw HTTPS:** still send **`anthropic-version`** (+ key + JSON). SDK helpers don’t exist on a bare device.
-- **Overnight cost:** stable prefix + **cache breakpoint** + **Batches**. Streaming does **not** cut billed output tokens.
-- **Size guard:** **token-counting endpoint** on the **full** request for the target model (+ reserve output).
-- **Large MCP output:** spilled to a **file the agent can read**; use **`anthropic/maxResultSizeChars`** for inline.
+- **Stale CRM/search:** **clear/edit** and/or **subagent**. Caching ≠ freshness.
+- **Raw HTTPS:** **`anthropic-version`** (+ key + JSON).
+- **Overnight cost:** **cache breakpoint** + **Batches**. Streaming ≠ cheaper output tokens.
+- **Size guard:** **token-counting endpoint** on the **full** request.
+- **Large MCP output:** spill **file**; **`anthropic/maxResultSizeChars`** for inline.
+- **Structured outputs 400:** strip `minLength`/`maxLength`/`minimum`; keep `email`; validate in **app**.
 
-Drill: `mock-miss-drills.md`.
+Drill: `mock-miss-drills.md` (includes **2-hour miss-weighted plan**).
 
 ## 20-second chooser
 

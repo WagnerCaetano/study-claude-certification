@@ -49,7 +49,7 @@ API and models first; tools and agents next; Claude Code / eval last; security a
 | **5 — Safety** | 40 min | `09` | Injection, guardrails, hooks, keys |
 | **6 — Drill** | 60–90 min | `study-track/flashcards-all.md` | Cover every card; restudy misses by module |
 | **7 — Cram** | 25 min | `study-track/cram-sheet.md` + missed ABCD | Night-before / hour-before |
-| **8 — Hard-mock gaps** | 30–40 min | `study-track/mock-miss-drills.md` | After a dense practice exam; re-run cold the night before |
+| **8 — Hard-mock gaps** | 30–40 min *or* **2h miss plan** | `study-track/mock-miss-drills.md` | After dense mocks: use the file’s **2-hour review plan** (Messages 6b–6f, hooks/stop, MCP primitives, structured-output schema limits) |
 
 **Total: ~8–9 hours** (+ ~40 min for Pass 8 after a hard mock). If you have 4 hours, do Pass 0, then 01/02/04/05/09 briefs + cram sheet + flashcards tagged D1, D2-API, D5, D8, D7 (those are ~83% of the exam if you include D2 application-design at skim depth).
 
@@ -85,6 +85,7 @@ Also:
 - [flashcards-all.md](study-track/flashcards-all.md) — all cards, module-tagged
 - [cram-sheet.md](study-track/cram-sheet.md) — last-pass sheet
 - [mock-miss-drills.md](study-track/mock-miss-drills.md) — ABCD pack from hard-mock miss patterns (canary, Managed Agents, thinking events, strict schemas, MCP large output, etc.)
+- [day-before-exam.md](study-track/day-before-exam.md) — weight × mock-miss review checklist for the day before the exam
 
 ---
 
